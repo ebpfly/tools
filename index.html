@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflectance Spectrum Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Reflectance Spectrum Explorer</h1>
+            <p>Interactive visualization and analysis tool</p>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="dataInput">Load Spectrum Data (CSV format: wavelength,reflectance)</label>
+                <input type="file" id="dataInput" accept=".csv,.txt">
+            </div>
+
+            <div class="control-group">
+                <button id="loadSample" class="btn">Load Sample Data</button>
+                <button id="resetZoom" class="btn">Reset Zoom</button>
+                <button id="exportData" class="btn">Export Data</button>
+            </div>
+
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="showGrid" checked>
+                    Show Grid
+                </label>
+                <label>
+                    <input type="checkbox" id="showMarkers" checked>
+                    Show Markers
+                </label>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="stat">
+                <span class="label">Wavelength:</span>
+                <span id="currentWavelength">-</span> nm
+            </div>
+            <div class="stat">
+                <span class="label">Reflectance:</span>
+                <span id="currentReflectance">-</span> %
+            </div>
+            <div class="stat">
+                <span class="label">Data Points:</span>
+                <span id="dataCount">0</span>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="spectrumCanvas"></canvas>
+        </div>
+
+        <div class="statistics">
+            <h3>Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Min Reflectance:</span>
+                    <span id="minReflectance">-</span>%
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Max Reflectance:</span>
+                    <span id="maxReflectance">-</span>%
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Mean Reflectance:</span>
+                    <span id="meanReflectance">-</span>%
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Wavelength Range:</span>
+                    <span id="wavelengthRange">-</span> nm
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
