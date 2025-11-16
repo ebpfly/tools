@@ -80,22 +80,25 @@ header p {
 }
 
 .control-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     cursor: pointer;
+    min-width: 24px; /* Ensure minimum touch target */
 }
 
 /* Buttons */
 .btn {
-    padding: 10px 20px;
+    padding: 12px 24px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
+    min-height: 44px; /* iOS recommended touch target size */
+    touch-action: manipulation; /* Prevents double-tap zoom */
 }
 
 .btn:hover {
@@ -146,6 +149,9 @@ header p {
     border-radius: 8px;
     cursor: default;
     background: #fafbfc;
+    touch-action: none; /* Prevent default touch behaviors like scrolling */
+    -webkit-user-select: none; /* Prevent text selection on long press */
+    user-select: none;
 }
 
 /* Statistics Section */
@@ -191,6 +197,10 @@ header p {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
     header h1 {
         font-size: 1.8em;
     }
@@ -206,23 +216,53 @@ header p {
     .control-group {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
     }
 
     .control-group input[type="file"] {
         min-width: 100%;
+        font-size: 16px; /* Prevents zoom on focus in iOS */
+    }
+
+    .control-group label {
+        font-size: 16px;
+        min-height: 44px; /* Better touch target */
+        align-items: center;
+    }
+
+    .btn {
+        width: 100%;
+        font-size: 16px;
+        padding: 14px 24px;
     }
 
     .info-panel {
         flex-direction: column;
         gap: 15px;
+        padding: 15px 20px;
+    }
+
+    .info-panel .stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-panel .label {
+        display: inline;
+        margin-bottom: 0;
     }
 
     .canvas-container {
-        padding: 20px;
+        padding: 15px;
     }
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .statistics {
+        padding: 20px;
     }
 }
 

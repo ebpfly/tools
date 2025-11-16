@@ -9,6 +9,10 @@ class SpectrumExplorer {
         this.lastMousePos = { x: 0, y: 0 };
         this.padding = { top: 40, right: 40, bottom: 60, left: 70 };
 
+        // Touch support
+        this.touches = [];
+        this.lastTouchDistance = 0;
+
         this.setupCanvas();
         this.setupEventListeners();
     }
@@ -39,12 +43,18 @@ class SpectrumExplorer {
         document.getElementById('showGrid').addEventListener('change', () => this.draw());
         document.getElementById('showMarkers').addEventListener('change', () => this.draw());
 
-        // Canvas interactions
+        // Canvas interactions - Mouse
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         this.canvas.addEventListener('mouseup', () => this.handleMouseUp());
         this.canvas.addEventListener('mouseleave', () => this.handleMouseUp());
         this.canvas.addEventListener('wheel', (e) => this.handleWheel(e));
+
+        // Canvas interactions - Touch
+        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+        this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
+        this.canvas.addEventListener('touchcancel', (e) => this.handleTouchEnd(e), { passive: false });
 
         // Window resize
         window.addEventListener('resize', () => {
@@ -411,6 +421,85 @@ class SpectrumExplorer {
         a.download = 'spectrum_data.csv';
         a.click();
         URL.revokeObjectURL(url);
+    }
+
+    // Touch event handlers
+    handleTouchStart(event) {
+        event.preventDefault();
+        this.touches = Array.from(event.touches);
+
+        if (this.touches.length === 1) {
+            // Single touch - start dragging
+            const rect = this.canvas.getBoundingClientRect();
+            this.isDragging = true;
+            this.lastMousePos = {
+                x: this.touches[0].clientX - rect.left,
+                y: this.touches[0].clientY - rect.top
+            };
+        } else if (this.touches.length === 2) {
+            // Two touches - prepare for pinch zoom
+            this.isDragging = false;
+            this.lastTouchDistance = this.getTouchDistance(this.touches[0], this.touches[1]);
+        }
+    }
+
+    handleTouchMove(event) {
+        event.preventDefault();
+        this.touches = Array.from(event.touches);
+
+        if (this.touches.length === 1 && this.isDragging) {
+            // Single touch - pan
+            const rect = this.canvas.getBoundingClientRect();
+            const x = this.touches[0].clientX - rect.left;
+            const y = this.touches[0].clientY - rect.top;
+
+            const dx = x - this.lastMousePos.x;
+            const dy = y - this.lastMousePos.y;
+            this.pan(dx, dy);
+            this.lastMousePos = { x, y };
+        } else if (this.touches.length === 2) {
+            // Two touches - pinch zoom
+            const currentDistance = this.getTouchDistance(this.touches[0], this.touches[1]);
+
+            if (this.lastTouchDistance > 0) {
+                const zoomFactor = this.lastTouchDistance / currentDistance;
+
+                // Calculate center point between two touches
+                const rect = this.canvas.getBoundingClientRect();
+                const centerX = ((this.touches[0].clientX + this.touches[1].clientX) / 2) - rect.left;
+                const plotWidth = this.width - this.padding.left - this.padding.right;
+                const centerRatio = (centerX - this.padding.left) / plotWidth;
+
+                this.zoom(zoomFactor, Math.max(0, Math.min(1, centerRatio)));
+            }
+
+            this.lastTouchDistance = currentDistance;
+        }
+    }
+
+    handleTouchEnd(event) {
+        event.preventDefault();
+        this.touches = Array.from(event.touches);
+
+        if (this.touches.length === 0) {
+            this.isDragging = false;
+            this.lastTouchDistance = 0;
+        } else if (this.touches.length === 1) {
+            // Switch back to single touch mode
+            const rect = this.canvas.getBoundingClientRect();
+            this.lastMousePos = {
+                x: this.touches[0].clientX - rect.left,
+                y: this.touches[0].clientY - rect.top
+            };
+            this.isDragging = true;
+            this.lastTouchDistance = 0;
+        }
+    }
+
+    getTouchDistance(touch1, touch2) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 }
 
